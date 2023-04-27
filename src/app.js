@@ -8,12 +8,48 @@ const messages = [
   {role: "user", content: "Say this is a test!"},
 ]
 
-//Health Check
+//Health Check[0]
 app.get('/', (req, res) => {
   res.status(200).send('Live');
 }) 
 
-//Chat Completion
+//Train [1]
+app.post('/smart/train/me', async (req, res) => {
+  var message ="";
+  var id = "";
+
+  // config open ai
+  const configuration = new Configuration({
+    organization: "org-df7OMj3TagBeqN9JXhzo5Y6E",
+    apiKey: "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",
+});
+
+  try{
+  const openai = new OpenAIApi(configuration);
+  //const response = await openai.listEngines();
+
+  const response = await openai.createFile(
+    fs.createReadStream('./data_prepared.jsonl'),
+    'fine-tune');
+
+    message = "Deu Certo";
+    id = response.data.id;
+
+  await openai.createFineTune({
+    training_file: id,
+    model: 'davinci:ft-personal-2023-03-31-01-09-15'
+  });
+  
+  console.log(id)
+  }
+  catch (error){
+    console.error(error.response.data.error);
+  }
+  //intent.push(req.body)
+  res.status(200).json(message)
+})
+
+//Chat Completion [2]
 app.post('/smart/go', async (req, res) => {
   var message ="";
 
@@ -44,7 +80,7 @@ app.post('/smart/go', async (req, res) => {
   res.status(200).json(message)
 })
 
-//Fine-Tune
+//Fine-Tune[3] - optional
 app.post('/smart/fine-tune/me', async (req, res) => {
   var message ="";
 
@@ -73,40 +109,5 @@ app.post('/smart/fine-tune/me', async (req, res) => {
   //intent.push(req.body)
   res.status(200).json(message)
 })
-
-//Train
-app.post('/smart/train/me', async (req, res) => {
-  var message ="";
-  var id = "";
-
-  // config open ai
-  const configuration = new Configuration({
-    organization: "org-df7OMj3TagBeqN9JXhzo5Y6E",
-    apiKey: "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",
-});
-
-  try{
-  const openai = new OpenAIApi(configuration);
-  //const response = await openai.listEngines();
-
-  const response = await openai.createFile(
-    fs.createReadStream('./data_prepared.jsonl'),
-    'fine-tune')
-
-  message = "Deu Certo"
-  id = response.data.id
-  
-  console.log(response)
-  }
-  catch (error){
-    console.error(error.response.data.error);
-  }
- 
-
-  //intent.push(req.body)
-  res.status(200).json(message)
-})
-
-//Train Data
 
 export default app
