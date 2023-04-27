@@ -17,7 +17,6 @@ app.get('/', (req, res) => {
 app.post('/smart/go', async (req, res) => {
   var message ="";
 
-
   // config open ai
   const configuration = new Configuration({
     organization: "org-df7OMj3TagBeqN9JXhzo5Y6E",
@@ -26,9 +25,9 @@ app.post('/smart/go', async (req, res) => {
 
   try{
     const openai = new OpenAIApi(configuration);
-    //const response = await openai.listEngines(); Chat
+    //const response = await openai.listEngines(); Chat gpt-3.5-turbo
    const response = await openai.createCompletion({
-      model: "gpt-3.5-turbo",
+      model: "davinci:ft-personal-2023-03-31-01-09-15",
       messages: messages,
       temperature:1,
       max_tokens:10,
