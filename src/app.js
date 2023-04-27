@@ -26,8 +26,8 @@ app.post('/smart/go', async (req, res) => {
 
   try{
     const openai = new OpenAIApi(configuration);
-    //const response = await openai.listEngines();
-   const response = await openai.createChatCompletion({
+    //const response = await openai.listEngines(); Chat
+   const response = await openai.createCompletion({
       model: "gpt-3.5-turbo",
       messages: messages,
       temperature:1,
@@ -78,6 +78,7 @@ app.post('/smart/fine-tune/me', async (req, res) => {
 //Train
 app.post('/smart/train/me', async (req, res) => {
   var message ="";
+  var id = "";
 
   // config open ai
   const configuration = new Configuration({
@@ -89,12 +90,13 @@ app.post('/smart/train/me', async (req, res) => {
   const openai = new OpenAIApi(configuration);
   //const response = await openai.listEngines();
 
-  const response = await openai.createFile({
-    purpose :"fine-tune",
-    file:""
-  })
+  const response = await openai.createFile(
+    fs.createReadStream('./data_prepared.jsonl'),
+    'fine-tune')
 
   message = "Deu Certo"
+  id = response.data.id
+  
   console.log(response)
   }
   catch (error){
