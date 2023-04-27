@@ -1,11 +1,13 @@
+import fs from "fs"
 import express from "express";
 import { Configuration, OpenAIApi } from "openai";
 
 const app = express();
+app.use(express.json());
 
 
 const messages = [
-  {role: "user", content: "Say this is a test!"},
+  {role: "user", content: "What is Lens Protocol"},
 ]
 
 //Health Check[0]
@@ -20,28 +22,28 @@ app.post('/smart/train/me', async (req, res) => {
 
   // config open ai
   const configuration = new Configuration({
-    organization: "org-df7OMj3TagBeqN9JXhzo5Y6E",
-    apiKey: "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",
-});
-
-  try{
-  const openai = new OpenAIApi(configuration);
-  //const response = await openai.listEngines();
-
-  const response = await openai.createFile(
-    fs.createReadStream('./data_prepared.jsonl'),
-    'fine-tune');
-
-    message = "Deu Certo";
-    id = response.data.id;
-
-  await openai.createFineTune({
-    training_file: id,
-    model: 'davinci:ft-personal-2023-03-31-01-09-15'
+    organization: "",
+    apiKey: "",
   });
-  
-  console.log(id)
-  }
+
+try{
+	const openai = new OpenAIApi(configuration);
+	//const response = await openai.listEngines();
+
+	const response = await openai.createFile(
+		fs.createReadStream('/Users/nayara/Documents/Testes/PoC/api-chat-cgp-go/data_prepared.jsonl'),
+		'fine-tune');
+
+		message = "Deu Certo";
+		id = response.data.id;
+
+	await openai.createFineTune({
+		training_file: id,
+		model: 'davinci'
+	});
+	
+	console.log(id)
+	}
   catch (error){
     console.error(error.response.data.error);
   }
@@ -52,24 +54,25 @@ app.post('/smart/train/me', async (req, res) => {
 //Chat Completion [2]
 app.post('/smart/go', async (req, res) => {
   var message ="";
+  console.log(req.body)
 
   // config open ai
   const configuration = new Configuration({
-    organization: "org-df7OMj3TagBeqN9JXhzo5Y6E",
-    apiKey: "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",
+    organization: "",
+    apiKey: "",
 });
 
   try{
     const openai = new OpenAIApi(configuration);
-    //const response = await openai.listEngines(); Chat gpt-3.5-turbo
+    //const response = await openai.listEngines(); Chat davinci:ft-personal-2023-03-31-01-09-15
    const response = await openai.createCompletion({
-      model: "davinci:ft-personal-2023-03-31-01-09-15",
-      messages: messages,
+      model: 'text-davinci-003',
+      prompt: req.body.message,
       temperature:1,
       max_tokens:10,
     });
     //console.log(response.data.choices.message.content)
-    message = JSON.stringify(response.data.choices[0].message.content) 
+    message = JSON.stringify(response.data.choices[0].text) 
   }
   catch (error){
     console.error(error);
@@ -87,8 +90,8 @@ app.post('/smart/fine-tune/me', async (req, res) => {
 
   // config open ai
   const configuration = new Configuration({
-    organization: "org-df7OMj3TagBeqN9JXhzo5Y6E",
-    apiKey: "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",
+    organization: "",
+    apiKey: "",
 });
 
   try{
